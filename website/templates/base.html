@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}StockPulse AI{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header class="site-header">
+    <div class="wrap nav-row">
+        <a class="brand" href="{{ url_for('home') }}">StockPulse AI</a>
+        <nav class="nav-links">
+            <a href="{{ url_for('home') }}">Home</a>
+            <a href="{{ url_for('pricing') }}">Pricing</a>
+            <a href="{{ url_for('about') }}">About</a>
+            <a href="{{ url_for('contact') }}">Contact</a>
+            {% if current_user %}
+                <a href="{{ url_for('dashboard') }}">Dashboard</a>
+                <a href="{{ url_for('account') }}">Account</a>
+                <a href="{{ url_for('logout') }}">Logout</a>
+            {% else %}
+                <a href="{{ url_for('login') }}">Login</a>
+                <a class="btn btn-sm btn-primary" href="{{ url_for('signup') }}">Start Free</a>
+            {% endif %}
+        </nav>
+    </div>
+</header>
+<main class="wrap page-space">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="flash flash-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+</main>
+<footer class="site-footer">
+    <div class="wrap footer-grid">
+        <div>
+            <div class="brand foot-brand">StockPulse AI</div>
+            <p class="muted">AI-powered investing research for retail users.</p>
+        </div>
+        <div>
+            <h4>Platform</h4>
+            <a href="{{ url_for('pricing') }}">Pricing</a>
+            <a href="{{ url_for('dashboard') if current_user else url_for('login') }}">Dashboard</a>
+            <a href="{{ url_for('account') if current_user else url_for('signup') }}">Account</a>
+        </div>
+        <div>
+            <h4>Company</h4>
+            <a href="{{ url_for('about') }}">About</a>
+            <a href="{{ url_for('contact') }}">Contact</a>
+        </div>
+        <div>
+            <h4>Legal</h4>
+            <a href="{{ url_for('privacy') }}">Privacy Policy</a>
+            <a href="{{ url_for('terms') }}">Terms of Use</a>
+            <a href="{{ url_for('risk_disclaimer') }}">Risk Disclaimer</a>
+        </div>
+    </div>
+</footer>
+</body>
+</html>

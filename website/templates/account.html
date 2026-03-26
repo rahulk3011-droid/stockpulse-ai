@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Account - StockPulse AI{% endblock %}
+{% block content %}
+<section class="section-head">
+    <h1>Your Account</h1>
+    <p class="muted">Manage your access and open the dashboard.</p>
+</section>
+
+<div class="cards-3">
+    <div class="card">
+        <h3>Email</h3>
+        <p>{{ user["email"] }}</p>
+    </div>
+    <div class="card">
+        <h3>Your Plan</h3>
+        <p class="plan-badge">{{ user["plan"]|capitalize }}</p>
+    </div>
+    <div class="card">
+        <h3>Dashboard</h3>
+        {% if user["plan"] in ["pro", "premium"] %}
+            <a class="btn btn-primary" href="{{ streamlit_url }}" target="_blank">Open Dashboard</a>
+        {% else %}
+            <a class="btn btn-secondary" href="{{ url_for('pricing') }}">Upgrade Required</a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="section">
+    <div class="card">
+        <h3>Billing</h3>
+        {% if user["stripe_customer_id"] %}
+            <a class="btn btn-secondary" href="{{ url_for('billing_portal') }}">Manage Billing</a>
+        {% else %}
+            <p class="muted">No Stripe billing account linked yet.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
