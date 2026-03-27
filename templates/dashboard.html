@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - StockPulse AI{% endblock %}
+{% block content %}
+<section class="dashboard-header">
+    <div>
+        <h1>Your Dashboard</h1>
+        <p class="muted">Logged in as {{ user["email"] }}. Plan: {{ user["plan"]|capitalize }}</p>
+    </div>
+    <a class="btn btn-primary" href="{{ streamlit_url }}" target="_blank">Open Full Dashboard</a>
+</section>
+<div class="cards-3">
+    {% for card in dashboard_cards %}
+    <div class="card">
+        <h3>{{ card.title }}</h3>
+        <p class="muted">{{ card.body }}</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
