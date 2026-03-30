@@ -47,7 +47,7 @@ LOGIN_PAGE = '''
 
 @app.route("/")
 def home():
-    return redirect(url_for("login"))
+    return render_template_string(LOGIN_PAGE, error=None)
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
