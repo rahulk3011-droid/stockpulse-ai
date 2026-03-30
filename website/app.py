@@ -34,7 +34,7 @@ LOGIN_PAGE = '''
   <div class="card">
     <h2>StockPulse AI</h2>
     {% if error %}<div class="error">{{ error }}</div>{% endif %}
-    <form method="post">
+    <form method="post" action="/login">
       <input type="email" name="email" placeholder="Email" required>
       <input type="password" name="password" placeholder="Password" required>
       <button type="submit">Log In</button>
@@ -47,8 +47,7 @@ LOGIN_PAGE = '''
 
 @app.route("/")
 def home():
-    return render_template_string(LOGIN_PAGE, error=None)
-
+    return redirect(url_for("login"))
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
