@@ -5,9 +5,6 @@ services:
     rootDir: website
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn app:app
-    envVars:
-      - key: PYTHON_VERSION
-        value: 3.11.9
 
   - type: web
     name: stockpulse-dashboard
@@ -15,6 +12,3 @@ services:
     rootDir: Dashboard
     buildCommand: pip install -r requirements.txt
     startCommand: streamlit run app.py --server.port $PORT --server.address 0.0.0.0
-    envVars:
-      - key: PYTHON_VERSION
-        value: 3.11.9
