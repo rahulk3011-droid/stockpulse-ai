@@ -1,3 +1,5 @@
+# sector_engine.py
+
 GICS_GROUPS = {
     "Information Technology": {
         "Microsoft": "MSFT",
@@ -26,9 +28,6 @@ GICS_GROUPS = {
         "Westpac": "WBC.AX",
         "NAB": "NAB.AX",
         "ANZ": "ANZ.AX",
-        "Vanguard Australian Shares ETF": "VAS.AX",
-        "Vanguard International Shares ETF": "VGS.AX",
-        "Vanguard Diversified High Growth ETF": "VDHG.AX",
     },
     "Consumer Discretionary": {
         "Tesla": "TSLA",
@@ -86,6 +85,13 @@ GICS_GROUPS = {
         "AGL Energy": "AGL.AX",
         "Origin Energy": "ORG.AX",
     },
+    "Core ETFs": {
+        "Vanguard Diversified High Growth ETF": "VDHG.AX",
+        "Vanguard Australian Shares ETF": "VAS.AX",
+        "Vanguard International Shares ETF": "VGS.AX",
+        "iShares S&P 500 ETF": "IVV.AX",
+        "BetaShares Nasdaq 100 ETF": "NDQ.AX",
+    },
 }
 
 def get_sector_stocks(sector_name: str):
@@ -108,5 +114,6 @@ def get_sector_stocks(sector_name: str):
         "Financials": {
             "Macquarie": "MQG.AX",
         },
+        "Core ETFs": {},
     }
     return extra.get(sector_name, {})
