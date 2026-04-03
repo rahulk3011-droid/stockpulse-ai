@@ -177,30 +177,33 @@ def login():
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
     if request.method == "POST":
-        email = request.form.get("email", "").strip().lower()
-        password = request.form.get("password", "")
+    email = request.form.get("email", "").strip().lower()
+    password = request.form.get("password", "")
 
-        if not email or not password:
-            return render_template_string(SIGNUP_PAGE, error="All fields required")
+    if not email or not password:
+        return render_template_string(SIGNUP_PAGE, error="All fields required")
 
-        if email in USERS:
-            return render_template_string(SIGNUP_PAGE, error="User already exists")
+    conn = sqlite3.connect("app.db")
+    cursor = conn.cursor()
 
-        USERS[email] = password
-
-        return redirect(url_for("login"))
-
-    return render_template_string(SIGNUP_PAGE, error=None)
-        conn.execute(
-            "INSERT INTO users (email, password_hash, plan, is_active, created_at) VALUES (?, ?, ?, ?, ?)",
-            (email, generate_password_hash(password), "free", 1, utc_now().isoformat())
-        )
-        conn.commit()
+    # Check if user exists
+    cursor.execute("SELECT * FROM users WHERE email = ?", (email,))
+    if cursor.fetchone():
         conn.close()
+        return render_template_string(SIGNUP_PAGE, error="User already exists")
 
-        return render_template_string(SIGNUP_PAGE, error=None, success="Account created. You can now log in.")
+    # INSERT USER ✅ (THIS WAS WRONG BEFORE)
+    conn.execute(
+        "INSERT INTO users (email, password_hash, plan, is_active, created_at) VALUES (?, ?, ?, ?, ?)",
+        (email, generate_password_hash(password), "free", 1, utc_now().isoformat())
+    )
+    conn.commit()
+    conn.close()
 
-    return render_template_string(SIGNUP_PAGE, error=None, success=None)
+    return render_template_string(SIGNUP_PAGE, error=None, success="Account created. You can now log in.")
+
+# GET request
+return render_template_string(SIGNUP_PAGE, error=None)
 
 @app.route("/validate-token")
 def validate_token():
