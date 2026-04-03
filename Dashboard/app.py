@@ -109,6 +109,10 @@ ETF_ALIASES = {
     "VGS.AX": ("Vanguard International Shares ETF", "VGS.AX"),
     "VDHG": ("Vanguard Diversified High Growth ETF", "VDHG.AX"),
     "VDHG.AX": ("Vanguard Diversified High Growth ETF", "VDHG.AX"),
+    "IVV": ("iShares S&P 500 ETF", "IVV.AX"),
+    "IVV.AX": ("iShares S&P 500 ETF", "IVV.AX"),
+    "NDQ": ("BetaShares Nasdaq 100 ETF", "NDQ.AX"),
+    "NDQ.AX": ("BetaShares Nasdaq 100 ETF", "NDQ.AX"),
 }
 
 def safe_float_local(value, default=0.0):
@@ -153,7 +157,7 @@ def normalize_portfolio_asset(asset_input: str):
     upper = raw.upper()
     if upper in ETF_ALIASES:
         asset_name, ticker = ETF_ALIASES[upper]
-        return asset_name, ticker, ASSET_TO_GROUP.get(asset_name, "Financials")
+        return asset_name, ticker, ASSET_TO_GROUP.get(asset_name, "Core ETFs")
     if raw in ASSET_TO_SYMBOL:
         return raw, ASSET_TO_SYMBOL[raw], ASSET_TO_GROUP.get(raw, "Other")
     if upper in SYMBOL_TO_ASSET:
@@ -253,6 +257,7 @@ def build_market_table(raw) -> pd.DataFrame:
             continue
         if df.empty or len(df) < 3:
             continue
+
         current_price = safe_float_local(df["Close"].iloc[-1])
         previous_close = safe_float_local(df["Close"].iloc[-2])
         week_close = safe_float_local(df["Close"].iloc[-6]) if len(df) >= 6 else previous_close
@@ -305,6 +310,7 @@ def build_market_table(raw) -> pd.DataFrame:
                 "Scanner Score": scanner_score,
             }
         )
+
     market = pd.DataFrame(rows)
     if market.empty:
         return market
@@ -452,6 +458,7 @@ tabs = st.tabs(
         "Materials",
         "Real Estate",
         "Utilities",
+        "Core ETFs",
         "Portfolio",
         "IPO Radar",
     ]
@@ -561,8 +568,11 @@ with tabs[10]:
 with tabs[11]:
     st.subheader("Utilities")
     render_group_tab("Utilities", filtered_df, market_df, chart_period)
-
 with tabs[12]:
+    st.subheader("Core ETFs")
+    render_group_tab("Core ETFs", filtered_df, market_df, chart_period)
+
+with tabs[13]:
     st.subheader("My Portfolio")
     st.caption("You can type asset name, ticker, or ETF code like VAS / VGS / VDHG.")
 
@@ -680,7 +690,7 @@ with tabs[12]:
         display_portfolio["P&L"] = display_portfolio["P&L"].map(money)
         st.dataframe(style_signal_table(display_portfolio), use_container_width=True, hide_index=True)
 
-with tabs[13]:
+with tabs[14]:
     st.subheader("IPO Radar")
     st.dataframe(IPO_RADAR, use_container_width=True, hide_index=True)
 
