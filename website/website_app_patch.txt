@@ -1,0 +1,8 @@
+# Add near the top of your Flask app.py
+import os
+
+# Add near app config / constants
+DASHBOARD_URL = os.getenv("DASHBOARD_URL", "http://localhost:8501")
+
+# Replace your successful login redirect line with:
+return redirect(f"{DASHBOARD_URL}/?token={dashboard_token}")

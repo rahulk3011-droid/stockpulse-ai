@@ -1,0 +1,39 @@
+{
+    "AI & Tech": [
+        "NVDA",
+        "MSFT",
+        "GOOGL",
+        "META",
+        "PLTR"
+    ],
+    "EV & Energy": [
+        "TSLA",
+        "NIO",
+        "XPEV",
+        "ENPH"
+    ],
+    "Crypto": [
+        "COIN",
+        "MSTR"
+    ],
+    "Finance": [
+        "JPM",
+        "GS",
+        "BAC"
+    ],
+    "Healthcare": [
+        "PFE",
+        "JNJ",
+        "MRNA"
+    ],
+    "ASX Tech": [
+        "BRN.AX",
+        "WBT.AX",
+        "NVX.AX"
+    ],
+    "ASX Mining": [
+        "BHP.AX",
+        "RIO.AX",
+        "FMG.AX"
+    ]
+}

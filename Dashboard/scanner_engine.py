@@ -59,4 +59,8 @@ def scanner_label(explosive, smart_money, breakout_watch):
     if not labels:
         return "Normal"
 
+<<<<<<< HEAD
     return " | ".join(labels)
+=======
+    return " | ".join(labels)
+>>>>>>> a2263f5 (Added signup route)

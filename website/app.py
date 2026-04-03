@@ -2,24 +2,35 @@ import os
 import secrets
 import sqlite3
 from datetime import datetime, timedelta, timezone
+<<<<<<< HEAD
 from functools import wraps
 
+=======
+>>>>>>> a2263f5 (Added signup route)
 from flask import Flask, jsonify, redirect, render_template_string, request, session, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "change-this-secret-key")
+<<<<<<< HEAD
 
+=======
+>>>>>>> a2263f5 (Added signup route)
 DASHBOARD_URL = os.getenv("DASHBOARD_URL", "http://localhost:8501")
 DATABASE_PATH = os.getenv("DATABASE_PATH", "stockpulse.db")
 TOKEN_EXPIRY_MINUTES = int(os.getenv("TOKEN_EXPIRY_MINUTES", "60"))
 
+<<<<<<< HEAD
 LOGIN_PAGE = """
+=======
+LOGIN_PAGE = '''
+>>>>>>> a2263f5 (Added signup route)
 <!doctype html>
 <html>
 <head>
   <title>StockPulse AI Login</title>
   <style>
+<<<<<<< HEAD
     body {
       font-family: Arial, sans-serif;
       background: #0f172a;
@@ -61,13 +72,25 @@ LOGIN_PAGE = """
     .success { color: #86efac; margin-bottom: 10px; }
     .note { color: #94a3b8; font-size: 14px; margin-top: 12px; line-height: 1.5; }
     a { color: #93c5fd; text-decoration: none; }
+=======
+    body { font-family: Arial, sans-serif; background:#0f172a; color:white; display:flex; justify-content:center; align-items:center; height:100vh; margin:0; }
+    .card { background:#111827; padding:32px; border-radius:16px; width:380px; box-shadow:0 10px 30px rgba(0,0,0,0.3); }
+    input { width:100%; padding:12px; margin:8px 0; border-radius:8px; border:1px solid #334155; background:#0b1220; color:white; box-sizing:border-box; }
+    button { width:100%; padding:12px; border:none; border-radius:8px; background:#2563eb; color:white; font-weight:700; cursor:pointer; }
+    .error { color:#f87171; margin-bottom:10px; }
+    .note { color:#94a3b8; font-size:14px; margin-top:12px; line-height:1.45; }
+    a { color:#93c5fd; text-decoration:none; }
+>>>>>>> a2263f5 (Added signup route)
   </style>
 </head>
 <body>
   <div class="card">
     <h2>StockPulse AI</h2>
     {% if error %}<div class="error">{{ error }}</div>{% endif %}
+<<<<<<< HEAD
     {% if success %}<div class="success">{{ success }}</div>{% endif %}
+=======
+>>>>>>> a2263f5 (Added signup route)
     <form method="post" action="/login">
       <input type="email" name="email" placeholder="Email" required>
       <input type="password" name="password" placeholder="Password" required>
@@ -75,12 +98,17 @@ LOGIN_PAGE = """
     </form>
     <div class="note">
       Demo login: demo@stockpulse.ai / demo123<br>
+<<<<<<< HEAD
       Need an account? <a href="/signup">Create one</a><br>
       View plans: <a href="/pricing">Pricing</a>
+=======
+      Need an account? <a href="/signup">Create one</a>
+>>>>>>> a2263f5 (Added signup route)
     </div>
   </div>
 </body>
 </html>
+<<<<<<< HEAD
 """
 
 SIGNUP_PAGE = """
@@ -454,11 +482,39 @@ def utc_now():
     return datetime.now(timezone.utc)
 
 
+=======
+'''
+
+SIGNUP_PAGE = '''
+<!doctype html>
+<html>
+<head>
+  <title>StockPulse AI Signup</title>
+</head>
+<body style="background:#0f172a;color:white;display:flex;justify-content:center;align-items:center;height:100vh;">
+  <div style="background:#111827;padding:30px;border-radius:12px;">
+    <h2>Signup</h2>
+    {% if error %}<p style="color:red;">{{ error }}</p>{% endif %}
+    <form method="post">
+      <input type="email" name="email" placeholder="Email" required><br><br>
+      <input type="password" name="password" placeholder="Password" required><br><br>
+      <button type="submit">Create Account</button>
+    </form>
+  </div>
+</body>
+</html>
+'''
+>>>>>>> a2263f5 (Added signup route)
 def get_db():
     conn = sqlite3.connect(DATABASE_PATH)
     conn.row_factory = sqlite3.Row
     return conn
 
+<<<<<<< HEAD
+=======
+def utc_now():
+    return datetime.now(timezone.utc)
+>>>>>>> a2263f5 (Added signup route)
 
 def init_db():
     conn = get_db()
@@ -489,6 +545,7 @@ def init_db():
     demo_email = "demo@stockpulse.ai"
     demo_password = "demo123"
 
+<<<<<<< HEAD
     existing = cur.execute(
         "SELECT id FROM users WHERE email = ?",
         (demo_email,)
@@ -504,12 +561,22 @@ def init_db():
                 1,
                 utc_now().isoformat(),
             ),
+=======
+    existing = cur.execute("SELECT id FROM users WHERE email = ?", (demo_email,)).fetchone()
+    if not existing:
+        cur.execute(
+            "INSERT INTO users (email, password_hash, plan, is_active, created_at) VALUES (?, ?, ?, ?, ?)",
+            (demo_email, generate_password_hash(demo_password), "pro", 1, utc_now().isoformat())
+>>>>>>> a2263f5 (Added signup route)
         )
         conn.commit()
 
     conn.close()
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> a2263f5 (Added signup route)
 def create_token(email: str) -> str:
     token = secrets.token_urlsafe(24)
     expires_at = utc_now() + timedelta(minutes=TOKEN_EXPIRY_MINUTES)
@@ -523,7 +590,10 @@ def create_token(email: str) -> str:
     conn.close()
     return token
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> a2263f5 (Added signup route)
 def get_token_row(token: str):
     conn = get_db()
     row = conn.execute(
@@ -533,13 +603,17 @@ def get_token_row(token: str):
     conn.close()
     return row
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> a2263f5 (Added signup route)
 def delete_token(token: str):
     conn = get_db()
     conn.execute("DELETE FROM tokens WHERE token = ?", (token,))
     conn.commit()
     conn.close()
 
+<<<<<<< HEAD
 
 def cleanup_expired_tokens():
     conn = get_db()
@@ -592,11 +666,26 @@ def before_request_cleanup():
     cleanup_expired_tokens()
 
 
+=======
+def cleanup_expired_tokens():
+    conn = get_db()
+    conn.execute("DELETE FROM tokens WHERE expires_at <= ?", (utc_now().isoformat(),))
+    conn.commit()
+    conn.close()
+
+@app.before_request
+def _cleanup_tokens():
+    cleanup_expired_tokens()
+
+>>>>>>> a2263f5 (Added signup route)
 @app.route("/")
 def home():
     return redirect(url_for("login"))
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> a2263f5 (Added signup route)
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -615,10 +704,16 @@ def login():
             dashboard_token = create_token(email)
             return redirect(f"{DASHBOARD_URL}/?token={dashboard_token}")
 
+<<<<<<< HEAD
         return render_template_string(LOGIN_PAGE, error="Invalid email or password", success=None)
 
     return render_template_string(LOGIN_PAGE, error=None, success=None)
 
+=======
+        return render_template_string(LOGIN_PAGE, error="Invalid email or password")
+
+    return render_template_string(LOGIN_PAGE, error=None)
+>>>>>>> a2263f5 (Added signup route)
 
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
@@ -626,6 +721,7 @@ def signup():
         email = request.form.get("email", "").strip().lower()
         password = request.form.get("password", "")
 
+<<<<<<< HEAD
         if not email or "@" not in email:
             return render_template_string(
                 SIGNUP_PAGE,
@@ -663,10 +759,27 @@ def signup():
                 1,
                 utc_now().isoformat()
             )
+=======
+        if not email or not password:
+            return render_template_string(SIGNUP_PAGE, error="All fields required")
+
+        if email in USERS:
+            return render_template_string(SIGNUP_PAGE, error="User already exists")
+
+        USERS[email] = password
+
+        return redirect(url_for("login"))
+
+    return render_template_string(SIGNUP_PAGE, error=None)
+        conn.execute(
+            "INSERT INTO users (email, password_hash, plan, is_active, created_at) VALUES (?, ?, ?, ?, ?)",
+            (email, generate_password_hash(password), "free", 1, utc_now().isoformat())
+>>>>>>> a2263f5 (Added signup route)
         )
         conn.commit()
         conn.close()
 
+<<<<<<< HEAD
         return render_template_string(
             SIGNUP_PAGE,
             error=None,
@@ -705,6 +818,12 @@ def pro_demo():
     return "<h1>Pro feature unlocked</h1><p>This is a placeholder gated feature.</p>"
 
 
+=======
+        return render_template_string(SIGNUP_PAGE, error=None, success="Account created. You can now log in.")
+
+    return render_template_string(SIGNUP_PAGE, error=None, success=None)
+
+>>>>>>> a2263f5 (Added signup route)
 @app.route("/validate-token")
 def validate_token():
     token = request.args.get("token", "")
@@ -723,14 +842,25 @@ def validate_token():
 
     return jsonify({"valid": False}), 401
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> a2263f5 (Added signup route)
 @app.route("/logout")
 def logout():
     session.clear()
     return redirect(url_for("login"))
 
+<<<<<<< HEAD
 
 init_db()
 
 if __name__ == "__main__":
     app.run(debug=True)
+=======
+if __name__ == "__main__":
+    init_db()
+    app.run(debug=True)
+else:
+    init_db()
+>>>>>>> a2263f5 (Added signup route)

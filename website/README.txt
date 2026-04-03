@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 StockPulse AI - Launch Optimized Website Package
 
 Use this in the WEBSITE folder only.
@@ -21,3 +22,19 @@ After replacing:
 
 Optional Stripe webhook terminal:
 stripe listen --forward-to http://127.0.0.1:5000/stripe/webhook
+=======
+StockPulse AI - Step 2 Premium UI Upgrade
+
+Use these files in the WEBSITE folder only.
+
+Replace:
+- templates/home.html
+- templates/pricing.html
+- templates/account.html
+- static/style.css
+
+Keep:
+- app.py
+- app.db
+- other templates unchanged
+>>>>>>> a2263f5 (Added signup route)
