@@ -2,6 +2,7 @@ import os
 import secrets
 import sqlite3
 from datetime import datetime, timedelta, timezone
+from functools import wraps
 
 from flask import Flask, jsonify, redirect, render_template_string, request, session, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -56,24 +57,10 @@ LOGIN_PAGE = """
       font-weight: 700;
       cursor: pointer;
     }
-    .error {
-      color: #f87171;
-      margin-bottom: 10px;
-    }
-    .success {
-      color: #86efac;
-      margin-bottom: 10px;
-    }
-    .note {
-      color: #94a3b8;
-      font-size: 14px;
-      margin-top: 12px;
-      line-height: 1.5;
-    }
-    a {
-      color: #93c5fd;
-      text-decoration: none;
-    }
+    .error { color: #f87171; margin-bottom: 10px; }
+    .success { color: #86efac; margin-bottom: 10px; }
+    .note { color: #94a3b8; font-size: 14px; margin-top: 12px; line-height: 1.5; }
+    a { color: #93c5fd; text-decoration: none; }
   </style>
 </head>
 <body>
@@ -88,7 +75,8 @@ LOGIN_PAGE = """
     </form>
     <div class="note">
       Demo login: demo@stockpulse.ai / demo123<br>
-      Need an account? <a href="/signup">Create one</a>
+      Need an account? <a href="/signup">Create one</a><br>
+      View plans: <a href="/pricing">Pricing</a>
     </div>
   </div>
 </body>
@@ -138,24 +126,10 @@ SIGNUP_PAGE = """
       font-weight: 700;
       cursor: pointer;
     }
-    .error {
-      color: #f87171;
-      margin-bottom: 10px;
-    }
-    .success {
-      color: #86efac;
-      margin-bottom: 10px;
-    }
-    .note {
-      color: #94a3b8;
-      font-size: 14px;
-      margin-top: 12px;
-      line-height: 1.5;
-    }
-    a {
-      color: #93c5fd;
-      text-decoration: none;
-    }
+    .error { color: #f87171; margin-bottom: 10px; }
+    .success { color: #86efac; margin-bottom: 10px; }
+    .note { color: #94a3b8; font-size: 14px; margin-top: 12px; line-height: 1.5; }
+    a { color: #93c5fd; text-decoration: none; }
   </style>
 </head>
 <body>
@@ -171,6 +145,305 @@ SIGNUP_PAGE = """
     <div class="note">
       Already have an account? <a href="/login">Log in</a>
     </div>
+  </div>
+</body>
+</html>
+"""
+
+PRICING_PAGE = """
+<!doctype html>
+<html>
+<head>
+  <title>StockPulse AI Pricing</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: white;
+      margin: 0;
+      padding: 40px 20px;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    .sub {
+      text-align: center;
+      color: #94a3b8;
+      margin-bottom: 40px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+    }
+    .card {
+      background: #111827;
+      border: 1px solid #1f2937;
+      border-radius: 18px;
+      padding: 28px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    }
+    .plan {
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .price {
+      font-size: 34px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .muted {
+      color: #94a3b8;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+    ul {
+      padding-left: 20px;
+      line-height: 1.8;
+      color: #e5e7eb;
+    }
+    .btn {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 12px 18px;
+      border-radius: 10px;
+      background: #2563eb;
+      color: white;
+      text-decoration: none;
+      font-weight: 700;
+    }
+    .secondary {
+      background: #374151;
+    }
+    .topnav {
+      margin-bottom: 28px;
+    }
+    .topnav a {
+      color: #93c5fd;
+      text-decoration: none;
+      margin-right: 18px;
+    }
+    .badge {
+      display: inline-block;
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #1d4ed8;
+      margin-left: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="topnav">
+      <a href="/login">Login</a>
+      <a href="/signup">Signup</a>
+      <a href="/account">Account</a>
+    </div>
+
+    <h1>StockPulse AI Pricing</h1>
+    <div class="sub">Choose the plan that matches your investing workflow.</div>
+
+    <div class="grid">
+      <div class="card">
+        <div class="plan">Free</div>
+        <div class="price">$0</div>
+        <div class="muted">For getting started</div>
+        <ul>
+          <li>Login access</li>
+          <li>Basic dashboard access</li>
+          <li>Core ETF tracking</li>
+          <li>Limited scanner usage</li>
+        </ul>
+        <a class="btn secondary" href="/signup">Start Free</a>
+      </div>
+
+      <div class="card">
+        <div class="plan">Pro <span class="badge">Recommended</span></div>
+        <div class="price">$19/mo</div>
+        <div class="muted">Payments will be connected in Stage 7C-2</div>
+        <ul>
+          <li>Full dashboard access</li>
+          <li>Advanced scanner access</li>
+          <li>Portfolio intelligence</li>
+          <li>Priority future features</li>
+        </ul>
+        <a class="btn" href="/upgrade">Upgrade to Pro</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+"""
+
+ACCOUNT_PAGE = """
+<!doctype html>
+<html>
+<head>
+  <title>StockPulse AI Account</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: white;
+      margin: 0;
+      padding: 40px 20px;
+    }
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+    .card {
+      background: #111827;
+      border-radius: 18px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    }
+    .row {
+      margin-bottom: 16px;
+    }
+    .label {
+      color: #94a3b8;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+    .value {
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .btn {
+      display: inline-block;
+      margin-right: 12px;
+      margin-top: 20px;
+      padding: 12px 18px;
+      border-radius: 10px;
+      background: #2563eb;
+      color: white;
+      text-decoration: none;
+      font-weight: 700;
+    }
+    .secondary {
+      background: #374151;
+    }
+    .note {
+      color: #94a3b8;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <h1>My Account</h1>
+
+      <div class="row">
+        <div class="label">Email</div>
+        <div class="value">{{ email }}</div>
+      </div>
+
+      <div class="row">
+        <div class="label">Current Plan</div>
+        <div class="value">{{ plan|upper }}</div>
+      </div>
+
+      <div class="row">
+        <div class="label">Account Status</div>
+        <div class="value">{{ "ACTIVE" if is_active else "INACTIVE" }}</div>
+      </div>
+
+      <a class="btn" href="/pricing">View Plans</a>
+      <a class="btn secondary" href="/logout">Logout</a>
+
+      <div class="note">
+        Stripe checkout and automatic plan upgrades are coming in Stage 7C-2.
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+"""
+
+UPGRADE_PAGE = """
+<!doctype html>
+<html>
+<head>
+  <title>Upgrade Coming Soon</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .card {
+      background: #111827;
+      padding: 32px;
+      border-radius: 16px;
+      width: 420px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+    a {
+      color: #93c5fd;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Upgrade to Pro</h2>
+    <p>Stripe checkout will be connected in Stage 7C-2.</p>
+    <p><a href="/pricing">Back to Pricing</a></p>
+  </div>
+</body>
+</html>
+"""
+
+LOCKED_PAGE = """
+<!doctype html>
+<html>
+<head>
+  <title>Pro Plan Required</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .card {
+      background: #111827;
+      padding: 32px;
+      border-radius: 16px;
+      width: 420px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+    a {
+      color: #93c5fd;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Pro Plan Required</h2>
+    <p>This feature is available on the Pro plan.</p>
+    <p><a href="/pricing">View Pricing</a></p>
   </div>
 </body>
 </html>
@@ -278,6 +551,42 @@ def cleanup_expired_tokens():
     conn.close()
 
 
+def get_current_user():
+    email = session.get("user_email")
+    if not email:
+        return None
+
+    conn = get_db()
+    user = conn.execute(
+        "SELECT email, plan, is_active, created_at FROM users WHERE email = ?",
+        (email,)
+    ).fetchone()
+    conn.close()
+    return user
+
+
+def login_required(route_func):
+    @wraps(route_func)
+    def wrapper(*args, **kwargs):
+        user = get_current_user()
+        if not user:
+            return redirect(url_for("login"))
+        return route_func(*args, **kwargs)
+    return wrapper
+
+
+def pro_required(route_func):
+    @wraps(route_func)
+    def wrapper(*args, **kwargs):
+        user = get_current_user()
+        if not user:
+            return redirect(url_for("login"))
+        if user["plan"] != "pro":
+            return render_template_string(LOCKED_PAGE)
+        return route_func(*args, **kwargs)
+    return wrapper
+
+
 @app.before_request
 def before_request_cleanup():
     cleanup_expired_tokens()
@@ -365,6 +674,35 @@ def signup():
         )
 
     return render_template_string(SIGNUP_PAGE, error=None, success=None)
+
+
+@app.route("/pricing")
+def pricing():
+    return render_template_string(PRICING_PAGE)
+
+
+@app.route("/account")
+@login_required
+def account():
+    user = get_current_user()
+    return render_template_string(
+        ACCOUNT_PAGE,
+        email=user["email"],
+        plan=user["plan"],
+        is_active=bool(user["is_active"])
+    )
+
+
+@app.route("/upgrade")
+@login_required
+def upgrade():
+    return render_template_string(UPGRADE_PAGE)
+
+
+@app.route("/pro-demo")
+@pro_required
+def pro_demo():
+    return "<h1>Pro feature unlocked</h1><p>This is a placeholder gated feature.</p>"
 
 
 @app.route("/validate-token")
