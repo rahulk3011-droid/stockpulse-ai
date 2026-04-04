@@ -2,34 +2,85 @@ import os
 import secrets
 import sqlite3
 from datetime import datetime, timedelta, timezone
+
 from flask import Flask, jsonify, redirect, render_template_string, request, session, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "change-this-secret-key")
+
 DASHBOARD_URL = os.getenv("DASHBOARD_URL", "http://localhost:8501")
 DATABASE_PATH = os.getenv("DATABASE_PATH", "stockpulse.db")
 TOKEN_EXPIRY_MINUTES = int(os.getenv("TOKEN_EXPIRY_MINUTES", "60"))
 
-LOGIN_PAGE = '''
+LOGIN_PAGE = """
 <!doctype html>
 <html>
 <head>
   <title>StockPulse AI Login</title>
   <style>
-    body { font-family: Arial, sans-serif; background:#0f172a; color:white; display:flex; justify-content:center; align-items:center; height:100vh; margin:0; }
-    .card { background:#111827; padding:32px; border-radius:16px; width:380px; box-shadow:0 10px 30px rgba(0,0,0,0.3); }
-    input { width:100%; padding:12px; margin:8px 0; border-radius:8px; border:1px solid #334155; background:#0b1220; color:white; box-sizing:border-box; }
-    button { width:100%; padding:12px; border:none; border-radius:8px; background:#2563eb; color:white; font-weight:700; cursor:pointer; }
-    .error { color:#f87171; margin-bottom:10px; }
-    .note { color:#94a3b8; font-size:14px; margin-top:12px; line-height:1.45; }
-    a { color:#93c5fd; text-decoration:none; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .card {
+      background: #111827;
+      padding: 32px;
+      border-radius: 16px;
+      width: 380px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border-radius: 8px;
+      border: 1px solid #334155;
+      background: #0b1220;
+      color: white;
+      box-sizing: border-box;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      background: #2563eb;
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .error {
+      color: #f87171;
+      margin-bottom: 10px;
+    }
+    .success {
+      color: #86efac;
+      margin-bottom: 10px;
+    }
+    .note {
+      color: #94a3b8;
+      font-size: 14px;
+      margin-top: 12px;
+      line-height: 1.5;
+    }
+    a {
+      color: #93c5fd;
+      text-decoration: none;
+    }
   </style>
 </head>
 <body>
   <div class="card">
     <h2>StockPulse AI</h2>
     {% if error %}<div class="error">{{ error }}</div>{% endif %}
+    {% if success %}<div class="success">{{ success }}</div>{% endif %}
     <form method="post" action="/login">
       <input type="email" name="email" placeholder="Email" required>
       <input type="password" name="password" placeholder="Password" required>
@@ -42,34 +93,99 @@ LOGIN_PAGE = '''
   </div>
 </body>
 </html>
-'''
+"""
 
-SIGNUP_PAGE = '''
+SIGNUP_PAGE = """
 <!doctype html>
 <html>
 <head>
-  <title>StockPulse AI Signup</title>
+  <title>Create StockPulse AI Account</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .card {
+      background: #111827;
+      padding: 32px;
+      border-radius: 16px;
+      width: 380px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border-radius: 8px;
+      border: 1px solid #334155;
+      background: #0b1220;
+      color: white;
+      box-sizing: border-box;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      background: #2563eb;
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .error {
+      color: #f87171;
+      margin-bottom: 10px;
+    }
+    .success {
+      color: #86efac;
+      margin-bottom: 10px;
+    }
+    .note {
+      color: #94a3b8;
+      font-size: 14px;
+      margin-top: 12px;
+      line-height: 1.5;
+    }
+    a {
+      color: #93c5fd;
+      text-decoration: none;
+    }
+  </style>
 </head>
-<body style="background:#0f172a;color:white;display:flex;justify-content:center;align-items:center;height:100vh;">
-  <div style="background:#111827;padding:30px;border-radius:12px;">
-    <h2>Signup</h2>
-    {% if error %}<p style="color:red;">{{ error }}</p>{% endif %}
-    <form method="post">
-      <input type="email" name="email" placeholder="Email" required><br><br>
-      <input type="password" name="password" placeholder="Password" required><br><br>
+<body>
+  <div class="card">
+    <h2>Create Account</h2>
+    {% if error %}<div class="error">{{ error }}</div>{% endif %}
+    {% if success %}<div class="success">{{ success }}</div>{% endif %}
+    <form method="post" action="/signup">
+      <input type="email" name="email" placeholder="Email" required>
+      <input type="password" name="password" placeholder="Password (min 8 chars)" required>
       <button type="submit">Create Account</button>
     </form>
+    <div class="note">
+      Already have an account? <a href="/login">Log in</a>
+    </div>
   </div>
 </body>
 </html>
-'''
+"""
+
+
+def utc_now():
+    return datetime.now(timezone.utc)
+
+
 def get_db():
     conn = sqlite3.connect(DATABASE_PATH)
     conn.row_factory = sqlite3.Row
     return conn
 
-def utc_now():
-    return datetime.now(timezone.utc)
 
 def init_db():
     conn = get_db()
@@ -100,15 +216,26 @@ def init_db():
     demo_email = "demo@stockpulse.ai"
     demo_password = "demo123"
 
-    existing = cur.execute("SELECT id FROM users WHERE email = ?", (demo_email,)).fetchone()
+    existing = cur.execute(
+        "SELECT id FROM users WHERE email = ?",
+        (demo_email,)
+    ).fetchone()
+
     if not existing:
         cur.execute(
             "INSERT INTO users (email, password_hash, plan, is_active, created_at) VALUES (?, ?, ?, ?, ?)",
-            (demo_email, generate_password_hash(demo_password), "pro", 1, utc_now().isoformat())
+            (
+                demo_email,
+                generate_password_hash(demo_password),
+                "pro",
+                1,
+                utc_now().isoformat(),
+            ),
         )
         conn.commit()
 
     conn.close()
+
 
 def create_token(email: str) -> str:
     token = secrets.token_urlsafe(24)
@@ -123,6 +250,7 @@ def create_token(email: str) -> str:
     conn.close()
     return token
 
+
 def get_token_row(token: str):
     conn = get_db()
     row = conn.execute(
@@ -132,25 +260,33 @@ def get_token_row(token: str):
     conn.close()
     return row
 
+
 def delete_token(token: str):
     conn = get_db()
     conn.execute("DELETE FROM tokens WHERE token = ?", (token,))
     conn.commit()
     conn.close()
 
+
 def cleanup_expired_tokens():
     conn = get_db()
-    conn.execute("DELETE FROM tokens WHERE expires_at <= ?", (utc_now().isoformat(),))
+    conn.execute(
+        "DELETE FROM tokens WHERE expires_at <= ?",
+        (utc_now().isoformat(),)
+    )
     conn.commit()
     conn.close()
 
+
 @app.before_request
-def _cleanup_tokens():
+def before_request_cleanup():
     cleanup_expired_tokens()
+
 
 @app.route("/")
 def home():
     return redirect(url_for("login"))
+
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -170,9 +306,10 @@ def login():
             dashboard_token = create_token(email)
             return redirect(f"{DASHBOARD_URL}/?token={dashboard_token}")
 
-        return render_template_string(LOGIN_PAGE, error="Invalid email or password")
+        return render_template_string(LOGIN_PAGE, error="Invalid email or password", success=None)
 
-    return render_template_string(LOGIN_PAGE, error=None)
+    return render_template_string(LOGIN_PAGE, error=None, success=None)
+
 
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
@@ -180,27 +317,55 @@ def signup():
         email = request.form.get("email", "").strip().lower()
         password = request.form.get("password", "")
 
-        if not email or not password:
-            return render_template_string(SIGNUP_PAGE, error="All fields required")
+        if not email or "@" not in email:
+            return render_template_string(
+                SIGNUP_PAGE,
+                error="Please enter a valid email",
+                success=None
+            )
 
-        conn = sqlite3.connect("app.db")
-        cursor = conn.cursor()
+        if len(password) < 8:
+            return render_template_string(
+                SIGNUP_PAGE,
+                error="Password must be at least 8 characters",
+                success=None
+            )
 
-        cursor.execute("SELECT * FROM users WHERE email = ?", (email,))
-        if cursor.fetchone():
+        conn = get_db()
+        existing = conn.execute(
+            "SELECT id FROM users WHERE email = ?",
+            (email,)
+        ).fetchone()
+
+        if existing:
             conn.close()
-            return render_template_string(SIGNUP_PAGE, error="User already exists")
+            return render_template_string(
+                SIGNUP_PAGE,
+                error="An account already exists for this email",
+                success=None
+            )
 
         conn.execute(
             "INSERT INTO users (email, password_hash, plan, is_active, created_at) VALUES (?, ?, ?, ?, ?)",
-            (email, generate_password_hash(password), "free", 1, utc_now().isoformat())
+            (
+                email,
+                generate_password_hash(password),
+                "free",
+                1,
+                utc_now().isoformat()
+            )
         )
         conn.commit()
         conn.close()
 
-        return render_template_string(SIGNUP_PAGE, error=None, success="Account created. You can now log in.")
+        return render_template_string(
+            SIGNUP_PAGE,
+            error=None,
+            success="Account created. You can now log in."
+        )
 
-    return render_template_string(SIGNUP_PAGE, error=None)
+    return render_template_string(SIGNUP_PAGE, error=None, success=None)
+
 
 @app.route("/validate-token")
 def validate_token():
@@ -220,13 +385,14 @@ def validate_token():
 
     return jsonify({"valid": False}), 401
 
+
 @app.route("/logout")
 def logout():
     session.clear()
     return redirect(url_for("login"))
 
+
+init_db()
+
 if __name__ == "__main__":
-    init_db()
     app.run(debug=True)
-else:
-    init_db()
