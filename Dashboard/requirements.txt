@@ -1,8 +1,0 @@
-streamlit
-pandas
-yfinance
-<<<<<<< HEAD
-requests
-=======
-requests
->>>>>>> a2263f5 (Added signup route)
