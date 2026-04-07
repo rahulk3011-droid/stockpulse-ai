@@ -1,13 +1,5 @@
-<<<<<<< HEAD
 .env
+website/.env
+*.db
 __pycache__/
 *.pyc
-=======
-.env
-__pycache__/
-*.pyc
->>>>>>> 00711af (fix dashboard folder name)
-*.db.env 
-website/.env 
-.env 
-website/.env 
