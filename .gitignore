@@ -9,3 +9,5 @@ __pycache__/
 >>>>>>> 00711af (fix dashboard folder name)
 *.db.env 
 website/.env 
+.env 
+website/.env 
