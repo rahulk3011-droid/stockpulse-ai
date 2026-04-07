@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>StockPulse AI Pricing</title>
+    <style>
+        body {
+            background: #0b1a2f;
+            color: white;
+            font-family: Arial, sans-serif;
+            margin: 0;
+        }
+        .container {
+            padding: 40px;
+            text-align: center;
+        }
+        h1 {
+            margin-bottom: 10px;
+        }
+        .plans {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 40px;
+        }
+        .card {
+            background: #111f3d;
+            padding: 20px;
+            border-radius: 12px;
+            width: 260px;
+        }
+        .card h2 {
+            margin-bottom: 10px;
+        }
+        .card p {
+            color: #aaa;
+        }
+        .card ul {
+            text-align: left;
+        }
+        .btn {
+            margin-top: 15px;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 6px;
+            background: #2d6cdf;
+            color: white;
+            cursor: pointer;
+            width: 100%;
+        }
+        .btn:hover {
+            background: #1e4fbf;
+        }
+        .free-btn {
+            background: gray;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>StockPulse AI Pricing</h1>
+    <p>Choose your plan</p>
+
+    <div class="plans">
+
+        <!-- FREE -->
+        <div class="card">
+            <h2>Free</h2>
+            <p>Starter access</p>
+            <ul>
+                <li>Basic login access</li>
+                <li>Limited dashboard</li>
+                <li>No scanner features</li>
+            </ul>
+            <button class="btn free-btn">Current Plan</button>
+        </div>
+
+        <!-- PRO MONTHLY -->
+        <div class="card">
+            <h2>Pro Monthly</h2>
+            <p>$29/month</p>
+            <ul>
+                <li>Full dashboard</li>
+                <li>Scanner + Best Picks</li>
+                <li>Future alerts</li>
+            </ul>
+
+            <form action="/billing/create-checkout-session" method="POST">
+                <input type="hidden" name="plan" value="pro_monthly">
+                <button type="submit" class="btn">Checkout Pro</button>
+            </form>
+        </div>
+
+        <!-- PREMIUM MONTHLY -->
+        <div class="card">
+            <h2>Premium Monthly</h2>
+            <p>$99/month</p>
+            <ul>
+                <li>Everything in Pro</li>
+                <li>Advanced signals</li>
+                <li>Priority features</li>
+            </ul>
+
+            <form action="/billing/create-checkout-session" method="POST">
+                <input type="hidden" name="plan" value="premium_monthly">
+                <button type="submit" class="btn">Checkout Premium</button>
+            </form>
+        </div>
+
+    </div>
+
+    <br><br>
+
+    <!-- Billing Portal -->
+    <form action="/billing/portal" method="POST">
+        <button class="btn">Open Billing Portal</button>
+    </form>
+
+</div>
+
+</body>
+</html>

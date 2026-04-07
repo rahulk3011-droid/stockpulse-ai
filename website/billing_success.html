@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Billing Success</title>
+  <style>
+    body { font-family: Arial, sans-serif; background:#0b0f14; color:#fff; margin:0; }
+    .wrap { max-width:720px; margin:0 auto; padding:40px 20px; }
+    .card { background:#121923; border:1px solid #223047; border-radius:18px; padding:24px; }
+    a { color:#7db5ff; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Payment received</h1>
+      <p>Your subscription checkout completed. The final account activation comes from the webhook update.</p>
+      {% if details %}
+        <p><strong>Session:</strong> {{ details.id }}</p>
+        <p><strong>Status:</strong> {{ details.status }}</p>
+        <p><strong>Customer:</strong> {{ details.customer }}</p>
+      {% endif %}
+      <p><a href="/billing/portal">Manage billing</a></p>
+      <p><a href="/dashboard">Go to dashboard</a></p>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>StockPulse AI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #07111f;
+      color: #ffffff;
+    }
+    .wrap {
+      max-width: 900px;
+      margin: 60px auto;
+      padding: 24px;
+    }
+    .card {
+      background: #0d1b2a;
+      border: 1px solid #1f2f45;
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.25);
+    }
+    h1, h2, h3, p {
+      margin-top: 0;
+    }
+    .error {
+      background: #4a1f24;
+      color: #ffb7b7;
+      padding: 14px 16px;
+      border-radius: 10px;
+      margin-bottom: 18px;
+    }
+    .success {
+      background: #13341d;
+      color: #b9f2c7;
+      padding: 14px 16px;
+      border-radius: 10px;
+      margin-bottom: 18px;
+    }
+    input[type="email"] {
+      width: 100%;
+      padding: 14px;
+      border-radius: 10px;
+      border: 1px solid #38506d;
+      background: #091522;
+      color: #fff;
+      margin-bottom: 14px;
+      box-sizing: border-box;
+    }
+    button, .btn {
+      display: inline-block;
+      padding: 12px 18px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      text-decoration: none;
+      margin-right: 10px;
+      margin-top: 8px;
+    }
+    .primary {
+      background: #2f80ed;
+      color: white;
+    }
+    .green {
+      background: #1f8f4d;
+      color: white;
+    }
+    .dark {
+      background: #243447;
+      color: white;
+    }
+    .muted {
+      color: #aab6c5;
+    }
+    .price {
+      font-size: 34px;
+      font-weight: 800;
+      margin: 10px 0;
+    }
+    .row {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .col {
+      flex: 1;
+      min-width: 280px;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>StockPulse AI</h1>
+      <p class="muted">Login, buy premium, and open your investment dashboard.</p>
+
+      {% if error %}
+        <div class="error">{{ error }}</div>
+      {% endif %}
+
+      {% if premium %}
+        <div class="success">Premium is active for {{ email }}.</div>
+      {% endif %}
+
+      <form method="POST" action="/login">
+        <label for="email">Email</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          placeholder="you@example.com"
+          value="{{ email }}"
+          required
+        />
+        <button type="submit" class="primary">Login</button>
+        {% if email %}
+          <a href="/logout" class="btn dark">Logout</a>
+        {% endif %}
+      </form>
+    </div>
+
+    <div class="row">
+      <div class="card col">
+        <h2>Premium Plan</h2>
+        <p class="price">$29</p>
+        <p class="muted">One-time local test payment flow.</p>
+
+        {% if email %}
+          {% if premium %}
+            <a href="/open-dashboard" class="btn green">Open Dashboard</a>
+          {% else %}
+            <form method="POST" action="/buy-premium">
+              <button type="submit" class="primary">Buy Premium</button>
+            </form>
+          {% endif %}
+        {% else %}
+          <p class="muted">Log in first to continue.</p>
+        {% endif %}
+      </div>
+
+      <div class="card col">
+        <h3>How this works</h3>
+        <p>1. Enter your email.</p>
+        <p>2. Buy Premium through Stripe.</p>
+        <p>3. Stripe webhook marks your email as premium.</p>
+        <p>4. Open Dashboard sends your email as the dashboard token.</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

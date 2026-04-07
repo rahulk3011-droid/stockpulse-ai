@@ -21,26 +21,31 @@ token = st.query_params.get("token", "")
 if isinstance(token, list):
     token = token[0] if token else ""
 
-if not token:
+DEV_MODE = False  # set False later for production
+
+if not token and not DEV_MODE:
     st.error("Access Denied 🚫")
     st.info("Please log in through the StockPulse AI website.")
     st.stop()
 
-try:
-    resp = requests.get(
-        f"{FLASK_BASE_URL}/validate-token",
-        params={"token": token},
-        timeout=5,
-    )
-    if resp.status_code != 200 or not resp.json().get("valid"):
-        st.error("Access Denied 🚫")
-        st.info("Invalid or expired login session.")
+if DEV_MODE:
+    user_email = "Dev User"
+else:
+    try:
+        resp = requests.get(
+            f"{FLASK_BASE_URL}/validate-token",
+            params={"token": token},
+            timeout=5,
+        )
+        if resp.status_code != 200 or not resp.json().get("valid"):
+            st.error("Access Denied 🚫")
+            st.info("Invalid or expired login session.")
+            st.stop()
+        user_email = resp.json().get("email", "User")
+    except Exception:
+        st.error("Could not verify login.")
+        st.info("Make sure your Flask website is running first.")
         st.stop()
-    user_email = resp.json().get("email", "User")
-except Exception:
-    st.error("Could not verify login.")
-    st.info("Make sure your Flask website is running first.")
-    st.stop()
 
 st.markdown(
     '''
