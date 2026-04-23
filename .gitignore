@@ -1,5 +1,0 @@
-.env
-website/.env
-*.db
-__pycache__/
-*.pyc
